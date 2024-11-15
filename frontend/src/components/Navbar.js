@@ -1,11 +1,15 @@
+// src/components/Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/authSlice';
+import './Navbar.css';
 
 function Navbar() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
+
+  console.log('Navbar Authentication Status:', isAuthenticated); // Debugging line
 
   const handleLogout = () => {
     dispatch(logout());
@@ -20,6 +24,7 @@ function Navbar() {
         {isAuthenticated ? (
           <>
             <li><Link to="/account">Account</Link></li>
+            <li><Link to="/bookings">Bookings</Link></li>
             <li><button onClick={handleLogout} className="logout-button">Logout</button></li>
           </>
         ) : (

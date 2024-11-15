@@ -2,9 +2,12 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
+
 const flightStatusRoutes = require('./routes/flightStatusRoutes');
 const itineraryRoutes = require('./routes/itineraryRoutes');
-const authRoutes = require('./routes/authRoutes'); // Import auth routes
+const bookingRoutes = require('./routes/bookingRoutes'); // Import the booking routes
+const authRoutes = require('./routes/authRoutes');
+
 
 dotenv.config();
 const app = express();
@@ -15,16 +18,17 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.log('MongoDB connection error:', err));
 
 // Routes
 app.use('/api/flight-status', flightStatusRoutes);
 app.use('/api/itinerary', itineraryRoutes);
-app.use('/api/auth', authRoutes); // Add auth routes here
+app.use('/api/bookings', bookingRoutes); // Use the booking routes under the /api prefix
+app.use('/api/auth', authRoutes);
 
-// Change port to 5001
+// Set the port
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

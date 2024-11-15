@@ -1,0 +1,66 @@
+/* Page layout */
+.bookings-page {
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  .bookings-page h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Container for booking cards */
+  .bookings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  /* Booking card styling */
+  .booking-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .booking-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Flight details */
+  .booking-card p {
+    margin: 10px 0;
+    color: #555;
+    font-size: 0.9em;
+  }
+  
+  .booking-card strong {
+    color: #333;
+  }
+  
+  /* Price and booked date */
+  .booking-card .flight-price {
+    font-size: 1.1em;
+    color: #2b8a3e;
+    margin-top: 15px;
+  }
+  
+  .booking-card .booked-at {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+  }
+  
+  /* Error message styling */
+  .error {
+    color: red;
+    margin-top: 20px;
+  }
+  
