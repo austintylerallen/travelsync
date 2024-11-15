@@ -6,14 +6,19 @@ const authMiddleware = require('../middleware/authMiddleware');
 // POST /api/bookings/book
 router.post('/book', authMiddleware, async (req, res) => {
     try {
-      const { departureTime, arrivalTime, price, ...otherData } = req.body;
+      const { departureTime, arrivalTime, duration, price, ...otherData } = req.body;
+  
+      if (!duration) {
+        return res.status(400).json({ message: 'Duration is required.' });
+      }
   
       const bookingData = {
         ...otherData,
         user: req.user._id,
-        departureTime: new Date(departureTime), // Ensure valid Date object
-        arrivalTime: new Date(arrivalTime),    // Ensure valid Date object
-        price: parseFloat(price),             // Ensure valid Number
+        departureTime: new Date(departureTime),
+        arrivalTime: new Date(arrivalTime),
+        duration, // Save duration directly
+        price: parseFloat(price),
       };
   
       const newBooking = new Booking(bookingData);
@@ -21,10 +26,11 @@ router.post('/book', authMiddleware, async (req, res) => {
   
       res.status(201).json(newBooking);
     } catch (error) {
-      console.error('Booking creation error:', error);
+      console.error('Booking creation error:', error.message);
       res.status(500).json({ message: 'Booking failed', error: error.message });
     }
   });
+  
   
 
 // GET /api/bookings

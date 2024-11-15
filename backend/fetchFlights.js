@@ -57,3 +57,5 @@ const fetchFlightsFromAmadeus = async ({ origin, destination, departureDate, adu
 };
 
 module.exports = fetchFlightsFromAmadeus;
+
+
