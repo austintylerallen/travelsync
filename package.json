@@ -1,0 +1,17 @@
+{
+  "name": "travelsync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "concurrently \"pnpm --prefix backend start\" \"pnpm --prefix frontend start\"",
+    "backend": "pnpm --prefix backend start",
+    "frontend": "pnpm --prefix frontend start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
