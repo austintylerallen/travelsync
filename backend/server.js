@@ -7,6 +7,9 @@ const flightStatusRoutes = require('./routes/flightStatusRoutes');
 const itineraryRoutes = require('./routes/itineraryRoutes');
 const bookingRoutes = require('./routes/bookingRoutes'); // Import the booking routes
 const authRoutes = require('./routes/authRoutes');
+const seatmapRoutes = require('./routes/seatmapRoutes');
+
+
 
 
 dotenv.config();
@@ -26,6 +29,7 @@ app.use('/api/flight-status', flightStatusRoutes);
 app.use('/api/itinerary', itineraryRoutes);
 app.use('/api/bookings', bookingRoutes); // Use the booking routes under the /api prefix
 app.use('/api/auth', authRoutes);
+app.use('/api/seatmaps', seatmapRoutes);
 
 // Set the port
 const PORT = process.env.PORT || 5001;

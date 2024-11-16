@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FlightInfoModal from '../components/FlightInfoModal';
+import '../components/FlightInfoModal.css';
 import './FlightStatusPage.css';
+
+// Utility functions
+const formatDuration = (duration) => {
+  if (!duration) return 'Unknown';
+  return duration.replace('PT', '').replace('H', ' hours ').replace('M', ' minutes').trim();
+};
+
+const formatDateTime = (dateTime) => {
+  if (!dateTime) return 'Unknown';
+  const date = new Date(dateTime);
+  return date.toLocaleString();
+};
 
 function FlightStatusPage() {
   const [origin, setOrigin] = useState('');
@@ -9,8 +23,17 @@ function FlightStatusPage() {
   const [adults, setAdults] = useState(1);
   const [flightStatus, setFlightStatus] = useState([]);
   const [error, setError] = useState('');
+  const [showPassengerForm, setShowPassengerForm] = useState(false);
+  const [selectedFlight, setSelectedFlight] = useState(null);
+  const [passengerInfo, setPassengerInfo] = useState({
+    fullName: '',
+    dob: '',
+    gender: '',
+    email: '',
+    phone: '',
+    passportNumber: '', // Optional
+  });
 
-  // Airline code to name mapping
   const airlineNames = {
     F9: 'Frontier Airlines',
     UA: 'United Airlines',
@@ -23,7 +46,6 @@ function FlightStatusPage() {
     TK: 'Turkish Airlines',
   };
 
-  // Fetch flight status
   const fetchFlightStatus = async (e) => {
     e.preventDefault();
     setError('');
@@ -34,7 +56,7 @@ function FlightStatusPage() {
         params: { origin, destination, departureDate, adults },
       });
 
-      console.log('Received flight data:', response.data); // Debug
+      console.log('Received flight data:', response.data);
       if (response.data.flights && response.data.flights.length > 0) {
         setFlightStatus(response.data.flights);
       } else {
@@ -46,49 +68,57 @@ function FlightStatusPage() {
     }
   };
 
-  // Format duration
-  const formatDuration = (duration) => {
-    if (!duration) return 'Unknown';
-    return duration.replace('PT', '').replace('H', ' hours ').replace('M', ' minutes').trim();
+  const handleOpenPassengerForm = (flight) => {
+    setSelectedFlight(flight);
+    setShowPassengerForm(true);
   };
 
-  // Format date/time
-  const formatDateTime = (dateTime) => {
-    if (!dateTime) return 'Unknown';
-    const date = new Date(dateTime);
-    return date.toLocaleString();
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setPassengerInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
 
-  // Get airline name
-  const getAirlineName = (code) => airlineNames[code] || code || 'Unknown';
-
-  // Handle booking a flight
-  const handleBooking = async (flight) => {
+  const handleBooking = async () => {
+    // Extracting all fields needed for booking
     try {
+      const { fullName, dob, gender, email, phone } = passengerInfo;
+      if (!fullName || !dob || !gender || !email || !phone) {
+        alert('Please fill in all required passenger details.');
+        return;
+      }
+  
+      // Ensure price is being sent correctly
+      if (!selectedFlight?.price?.total) {
+        alert('Flight price is not available.');
+        return;
+      }
+  
       const bookingData = {
-        departureTime: flight.departureTime,
-        arrivalTime: flight.arrivalTime,
-        duration: flight.duration,
-        price: parseFloat(flight.price.total),
-        origin: flight.origin,
-        destination: flight.destination,
-        carrierCode: flight.carrierCode,
-        flightNumber: flight.flightNumber,
+        departureTime: selectedFlight.departureTime,
+        arrivalTime: selectedFlight.arrivalTime,
+        duration: selectedFlight.duration,
+        price: parseFloat(selectedFlight.price.total), // Ensure price is a valid number
+        origin: selectedFlight.origin,
+        destination: selectedFlight.destination,
+        carrierCode: selectedFlight.carrierCode,
+        flightNumber: selectedFlight.flightNumber,
+        passengerInfo,
       };
-
-      console.log('Booking data sent to server:', bookingData); // Debugging
-
+  
+      console.log('Booking data sent to server:', bookingData);
+  
       const response = await axios.post(`http://localhost:5001/api/bookings/book`, bookingData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-
+  
       alert('Flight booked successfully!');
+      setShowPassengerForm(false);
     } catch (error) {
       console.error('Error booking flight:', error.response?.data || error.message);
       alert('Failed to book the flight.');
     }
   };
-
+  
   return (
     <div className="flight-status-page">
       <h1>Flight Booking</h1>
@@ -133,7 +163,7 @@ function FlightStatusPage() {
             <div key={index} className="flight-card">
               <div className="flight-info">
                 <p className="flight-carrier">
-                  {getAirlineName(flight.carrierCode)} {flight.flightNumber || 'N/A'}
+                  {airlineNames[flight.carrierCode] || flight.carrierCode || 'Unknown'} {flight.flightNumber || 'N/A'}
                 </p>
                 <p><strong>From:</strong> {flight.origin || 'Unknown'}</p>
                 <p><strong>To:</strong> {flight.destination || 'Unknown'}</p>
@@ -145,14 +175,83 @@ function FlightStatusPage() {
                 </p>
               </div>
               <button
+                type="button"
                 className="book-button"
-                onClick={() => handleBooking(flight)}
+                onClick={() => handleOpenPassengerForm(flight)}
               >
                 Book Now
               </button>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Render FlightInfoModal */}
+      {showPassengerForm && (
+        <FlightInfoModal
+          title="Passenger Information"
+          onClose={() => setShowPassengerForm(false)}
+        >
+          <form>
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Full Name"
+              value={passengerInfo.fullName}
+              onChange={handleInputChange}
+              className="input-field"
+            />
+            <input
+              type="date"
+              name="dob"
+              placeholder="Date of Birth"
+              value={passengerInfo.dob}
+              onChange={handleInputChange}
+              className="input-field"
+            />
+            <select
+              name="gender"
+              value={passengerInfo.gender}
+              onChange={handleInputChange}
+              className="input-field"
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={passengerInfo.email}
+              onChange={handleInputChange}
+              className="input-field"
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={passengerInfo.phone}
+              onChange={handleInputChange}
+              className="input-field"
+            />
+            <input
+              type="text"
+              name="passportNumber"
+              placeholder="Passport Number (Optional)"
+              value={passengerInfo.passportNumber}
+              onChange={handleInputChange}
+              className="input-field"
+            />
+            <button type="button" onClick={handleBooking} className="confirm-button">
+              Confirm Booking
+            </button>
+            <button type="button" onClick={() => setShowPassengerForm(false)} className="cancel-button">
+              Cancel
+            </button>
+          </form>
+        </FlightInfoModal>
       )}
     </div>
   );
