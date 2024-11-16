@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -7,6 +6,7 @@ import FlightStatusPage from './pages/FlightStatusPage';
 import ItineraryPage from './pages/ItineraryPage';
 import AccountPage from './pages/AccountPage';
 import BookingsPage from './pages/BookingsPage';
+import SeatSelectionPage from './pages/SeatSelectionPage'; // New page
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
@@ -22,9 +22,10 @@ function App() {
         <Route path="/flight-status" element={<FlightStatusPage />} />
         <Route path="/itinerary" element={<ItineraryPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/bookings" element={isAuthenticated ? <BookingsPage /> : <Navigate to="/login" />} />
+        <Route path="/seat-selection/:flightId" element={<SeatSelectionPage />} />
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/account" />} />
         <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/account" />} />
-        <Route path="/bookings" element={isAuthenticated ? <BookingsPage /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );
