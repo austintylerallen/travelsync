@@ -49,4 +49,23 @@ router.get('/', authMiddleware, async (req, res) => {
   });
   
 
+// Delete a booking
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the booking and delete it
+    const booking = await Booking.findByIdAndDelete(id);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({ message: 'Booking cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling booking:', error.message);
+    res.status(500).json({ message: 'Error cancelling booking', error: error.message });
+  }
+});
+
 module.exports = router;
