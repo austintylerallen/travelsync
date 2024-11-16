@@ -18,7 +18,7 @@ router.get('/live', async (req, res) => {
       return res.status(400).json({ message: 'Invalid value for adults: Must be a positive integer.' });
     }
 
-    const { flights, dictionaries } = await fetchFlightsFromAmadeus({
+    const flights = await fetchFlightsFromAmadeus({
       origin,
       destination,
       departureDate,
@@ -29,8 +29,8 @@ router.get('/live', async (req, res) => {
       return res.status(404).json({ message: 'No flight data found for the specified criteria.' });
     }
 
-    // Respond with both flights and dictionaries
-    res.json({ flights, dictionaries });
+    // Respond only with flights
+    res.json({ flights });
   } catch (error) {
     console.error('Error fetching flight data:', error.message);
     res.status(500).json({ message: 'Error fetching flight data', error: error.message });
