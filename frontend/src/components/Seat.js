@@ -1,27 +1,26 @@
-import React from 'react';
-
-const Seat = ({ number, x, y, availability }) => {
-  const color = availability === 'AVAILABLE' ? '#499167' : '#FE5F55';
-  const style = {
-    position: 'absolute',
-    left: `${y * 2}em`,
-    top: `${x * 2}em`,
-    backgroundColor: color,
-    color: 'white',
-    width: '2em',
-    height: '2em',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '4px',
-    cursor: availability === 'AVAILABLE' ? 'pointer' : 'not-allowed',
+const Seat = ({ number, x, y, availability, isSelected, onClick }) => {
+    const color = isSelected ? '#FFD700' : availability === 'AVAILABLE' ? '#499167' : '#FE5F55';
+  
+    return (
+      <div
+        className="seat"
+        style={{
+          position: 'absolute',
+          left: `${y * 2}em`,
+          top: `${x * 2}em`,
+          backgroundColor: color,
+          color: 'white',
+          padding: '0.5em',
+          textAlign: 'center',
+          cursor: availability === 'AVAILABLE' ? 'pointer' : 'not-allowed',
+          border: isSelected ? '2px solid black' : 'none',
+        }}
+        onClick={availability === 'AVAILABLE' ? onClick : null}
+      >
+        {number}
+      </div>
+    );
   };
-
-  return (
-    <div className="seat" style={style} title={availability}>
-      <p>{number}</p>
-    </div>
-  );
-};
-
-export default Seat;
+  
+  export default Seat;
+  

@@ -1,36 +1,49 @@
 const express = require('express');
-const axios = require('axios');
+const mongoose = require('mongoose');
 const router = express.Router();
+const Booking = require('../models/Booking');
+const { getSeatMap } = require('../services/seatMapService');
+const { mockVisualSeatMap } = require('../services/mockVisualSeatMap');
 
-router.get('/seatmap', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { flightId } = req.query;
 
-    const tokenResponse = await axios.post(
-      'https://test.api.amadeus.com/v1/security/oauth2/token',
-      new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: process.env.AMADEUS_API_KEY,
-        client_secret: process.env.AMADEUS_API_SECRET,
-      }).toString(),
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
-    );
+    if (!flightId) {
+      return res.status(400).json({ message: 'Flight ID is required.' });
+    }
 
-    const accessToken = tokenResponse.data.access_token;
+    // Handle mock data directly if flightId is "MOCK12345"
+    if (flightId === 'MOCK12345') {
+      console.log('Using mock data for flight order.');
+      return res.status(200).json(mockVisualSeatMap);
+    }
 
-    const seatMapResponse = await axios.get(
-      `https://test.api.amadeus.com/v1/shopping/seatmaps?flightOrderId=${flightId}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
+    // Check if flightId is a valid ObjectId
+    if (!mongoose.isValidObjectId(flightId)) {
+      return res.status(400).json({ message: 'Invalid flight ID format.' });
+    }
 
-    res.json(seatMapResponse.data);
+    const booking = await Booking.findById(flightId);
+
+    if (!booking || !booking.flightOrderId) {
+      return res.status(404).json({ message: 'Flight order ID not found for this booking.' });
+    }
+
+    const useMockData = process.env.USE_MOCK_DATA === 'true';
+
+    let seatMapData;
+    if (useMockData) {
+      console.log('Using mock data for seat map.');
+      seatMapData = mockVisualSeatMap;
+    } else {
+      seatMapData = await getSeatMap(booking.flightOrderId); // Fetch from Amadeus API
+    }
+
+    res.status(200).json(seatMapData);
   } catch (error) {
     console.error('Error fetching seat map:', error.response?.data || error.message);
-    res.status(500).json({ message: 'Failed to fetch seat map' });
+    res.status(500).json({ message: 'Failed to retrieve seat map', error: error.message });
   }
 });
 

@@ -10,15 +10,25 @@ const PassengerInfoSchema = new mongoose.Schema({
 });
 
 const BookingSchema = new mongoose.Schema({
-  departureTime: { type: String, required: true },
-  arrivalTime: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  departureTime: { type: Date, required: true },
+  arrivalTime: { type: Date, required: true },
   duration: { type: String, required: true },
-  price: { type: Number, required: true }, // Ensure this field is a number
+  price: { type: Number, required: true },
   origin: { type: String, required: true },
   destination: { type: String, required: true },
   carrierCode: { type: String, required: true },
   flightNumber: { type: String, required: true },
-  passengerInfo: { type: PassengerInfoSchema, required: true },
-});
+  passengerInfo: {
+    fullName: { type: String, required: true },
+    dob: { type: Date, required: true },
+    gender: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
+  flightOrderId: { type: String, required: true }, // Ensure this is included
+}, { timestamps: true });
+
+
 
 module.exports = mongoose.model('Booking', BookingSchema);

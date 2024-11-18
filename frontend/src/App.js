@@ -7,6 +7,7 @@ import ItineraryPage from './pages/ItineraryPage';
 import AccountPage from './pages/AccountPage';
 import BookingsPage from './pages/BookingsPage';
 import SeatSelectionPage from './pages/SeatSelectionPage'; // New page
+import PaymentPage from './pages/PaymentPage'; // New page
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/bookings" element={isAuthenticated ? <BookingsPage /> : <Navigate to="/login" />} />
         <Route path="/seat-selection/:flightId" element={<SeatSelectionPage />} />
+        <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/login" />} />
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/account" />} />
         <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/account" />} />
       </Routes>
